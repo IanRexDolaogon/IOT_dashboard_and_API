@@ -12,20 +12,45 @@
 <body class="bg-gray-100 p-8 font-sans">
 
     <div class="max-w-6xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Smart Classroom Environment Monitor</h1>
+       <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Smart Classroom Environment Monitor</h1>
+    
+    <a href="/export" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded shadow-sm transition-colors duration-200">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        Export Data (CSV)
+    </a>
+</div>
 
         <!-- SMART FEATURE: Rule-based Decision Alert -->
-        @if($latest && $latest->temperature > 30 && $latest->is_occupied)
+        @if($latest && $latest->temperature > $threshold && $latest->is_occupied)
             <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm animate-pulse">
-                <p class="font-bold">⚠️ VENTILATION REQUIRED</p>
-                <p>Rule triggered: Room is occupied and temperature exceeds 30°C (Current: {{ $latest->temperature }}°C).</p>
+                <p class="font-bold">VENTILATION REQUIRED</p>
+                <p>Rule triggered: Room is occupied and temperature exceeds {{ $threshold }}°C (Current: {{ $latest->temperature }}°C).</p>
             </div>
         @elseif($latest)
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm">
-                <p class="font-bold">✅ Conditions Normal</p>
-                <p>Active monitoring in progress. No thresholds breached.</p>
+                <p class="font-bold">Conditions Normal</p>
+                <p>Active monitoring. Alert threshold is set to {{ $threshold }}°C.</p>
             </div>
         @endif
+
+        <!-- System Settings Panel -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8 bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-800 mb-2">System Settings</h2>
+            <form action="/update-threshold" method="POST" class="flex items-end gap-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Alert Threshold (°C)</label>
+                    <input type="number" step="0.1" name="threshold" value="{{ $threshold }}" class="mt-1 block w-32 rounded-md border-gray-300 shadow-sm p-2 border focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded shadow transition-colors">
+                    Save Changes
+                </button>
+            </form>
+            <p class="text-xs text-gray-500 mt-2">Alerts will only trigger if the room is occupied and temperature exceeds this value.</p>
+        </div>
 
         <!-- Real-time Status Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

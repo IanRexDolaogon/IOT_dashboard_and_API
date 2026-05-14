@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SensorData; // This is the model you made earlier!
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AlertNotification;
 
 class SensorController extends Controller
 {
@@ -25,9 +27,12 @@ class SensorController extends Controller
         // 3. YOUR SMART FEATURE (Rule-based Decision System)
         $trigger_buzzer = false;
         
-        // Logic: If Temp > 30 AND the PIR sensor detects someone is there
+        // If Temp > 30 AND the PIR sensor detects someone is there
         if ($data->temperature > 30 && $data->is_occupied == true) {
             $trigger_buzzer = true; 
+            
+            // NEW: Send the email alert to the administrator
+            Mail::to('admin@school.edu')->send(new AlertNotification($data));
         }
 
         // 4. Send a response back to the ESP32
